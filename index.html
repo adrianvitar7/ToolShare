@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ToolShare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="brand">
+      <span class="brand-icon">🧰</span>
+      <div>
+        <div class="brand-text">ToolShare</div>
+        <div class="brand-sub">Neighborhood Kit</div>
+      </div>
+    </div>
+    <nav class="drawers" id="drawers"></nav>
+    <div id="sidebar-footer">
+      <div class="profile-chip" onclick="go('profile')">
+        <div class="avatar" id="sidebarAvatar">🙂</div>
+        <div>
+          <div class="profile-name" id="sidebarName">Guest</div>
+          <div class="profile-role">View profile</div>
+        </div>
+      </div>
+      <button class="drawer-btn logout-btn" onclick="logout()">
+        <span class="ic">🚪</span>
+        <span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- AUTH VIEW -->
+    <section class="view" id="view-auth">
+      <div class="view-head" style="text-align:center;">
+        <span class="eyebrow-strip">Sign in to the toolshed</span>
+        <h1 class="view-title">Welcome to ToolShare</h1>
+        <p class="view-desc" style="margin:0 auto;">Borrow the drill you'll use twice a year. Lend the ladder that's gathering dust. One toolbox, shared by the whole street.</p>
+      </div>
+      <div class="form-card" style="margin-top:26px;">
+        <div id="authTabs" style="display:flex;gap:8px;margin-bottom:18px;">
+          <button class="btn secondary block" id="tabLoginBtn" onclick="setAuthMode('login')">Log in</button>
+          <button class="btn block" id="tabRegisterBtn" onclick="setAuthMode('register')">Register</button>
+        </div>
+        <div id="registerFields">
+          <div class="field"><label>Full name</label><input id="regName" autocomplete="name" placeholder="e.g. Jordan Reyes"></div>
+        </div>
+        <div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@street.com"></div>
+        <div class="field"><label>Neighborhood / street</label><input id="regStreet" placeholder="e.g. Maple Ave"></div>
+        <button class="btn block" id="authSubmitBtn" onclick="submitAuth()">Create account</button>
+        <p id="authStatus" style="font-size:11.5px;color:#8f8570;margin-top:12px;">No password needed for this demo — your toolbox stays on this device.</p>
+        <iframe name="googleFormTarget" id="googleFormTarget" title="Registration submission" aria-hidden="true" style="display:none;"></iframe>
+      </div>
+    </section>
+
+    <!-- BROWSE / BORROW -->
+    <section class="view" id="view-browse">
+      <div class="view-head">
+        <span class="eyebrow-strip">Borrow · Browse</span>
+        <h1 class="view-title">Browse the shed</h1>
+        <p class="view-desc">Tools your neighbors have on the shelf right now. Select one to see details and send a request.</p>
+      </div>
+      <div class="field" style="max-width:320px;">
+        <input id="browseSearch" placeholder="Search tools or categories…" oninput="renderBrowse()">
+      </div>
+      <div class="grid" id="browseGrid"></div>
+    </section>
+
+    <!-- MY REQUESTS (Borrow: Request / Confirmed / Return) -->
+    <section class="view" id="view-requests">
+      <div class="view-head">
+        <span class="eyebrow-strip">Borrow · Request → Confirmed</span>
+        <h1 class="view-title">Tools you're borrowing</h1>
+        <p class="view-desc">Track requests you've sent. Once an owner approves, you're confirmed to pick it up — and can mark it returned when you're done.</p>
+      </div>
+      <div class="panel-list" id="requestsList"></div>
+    </section>
+
+    <!-- MY TOOLS (Lending: Add Tools / Process / Approval) -->
+    <section class="view" id="view-lending">
+      <div class="view-head">
+        <span class="eyebrow-strip">Lending · Add Tools → Approval</span>
+        <h1 class="view-title">Your tool crib</h1>
+        <p class="view-desc">List what you're willing to lend, and process incoming borrow requests — approve, decline, and track what's out.</p>
+      </div>
+      <button class="btn" onclick="openAddTool()">＋ Add a tool</button>
+
+      <div class="plate">Incoming requests — needs approval</div>
+      <div class="panel-list" id="incomingList"></div>
+
+      <div class="plate">Tools you've listed</div>
+      <div class="grid" id="myToolsGrid"></div>
+    </section>
+
+    <!-- RETURNS & REVIEWS -->
+    <section class="view" id="view-returns">
+      <div class="view-head">
+        <span class="eyebrow-strip">Return · Review & Rating</span>
+        <h1 class="view-title">Returns & reviews</h1>
+        <p class="view-desc">Everything that's been marked returned, plus the ratings left along the way.</p>
+      </div>
+      <div class="plate">Returned tools</div>
+      <div class="panel-list" id="returnedList"></div>
+      <div class="plate">Reviews</div>
+      <div class="panel-list" id="reviewsList"></div>
+    </section>
+
+    <!-- PROFILE (Add photo) -->
+    <section class="view" id="view-profile">
+      <div class="view-head">
+        <span class="eyebrow-strip">Account</span>
+        <h1 class="view-title">Your profile</h1>
+        <p class="view-desc">This is what your neighbors see when you request or lend a tool.</p>
+      </div>
+      <div class="form-card">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div class="avatar" id="profileAvatarBig" style="width:64px;height:64px;font-size:30px;margin:0 auto 10px;"></div>
+          <div style="font-weight:700;font-size:17px;" id="profileNameBig"></div>
+          <div style="font-size:12.5px;color:#a89d81;" id="profileStreetBig"></div>
+        </div>
+        <div class="field">
+          <label>Choose your avatar (Add photo)</label>
+          <div class="avatar-pick" id="avatarPick"></div>
+        </div>
+        <div class="field"><label>Full name</label><input id="editName"></div>
+        <div class="field"><label>Neighborhood / street</label><input id="editStreet"></div>
+        <button class="btn block" onclick="saveProfile()">Save changes</button>
+        <div class="stat-strip">
+          <div class="stat-box"><div class="stat-num" id="statLent">0</div><div class="stat-lbl">Tools lent</div></div>
+          <div class="stat-box"><div class="stat-num" id="statBorrowed">0</div><div class="stat-lbl">Times borrowed</div></div>
+          <div class="stat-box"><div class="stat-num" id="statRating">–</div><div class="stat-lbl">Avg. rating</div></div>
+        </div>
+        <button class="btn secondary block" style="margin-top:18px;" onclick="logout()">Log out</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- bottom tabs (mobile) -->
+<div id="bottom-tabs"></div>
+
+<!-- MODALS -->
+<div class="overlay" id="overlaySelect">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('overlaySelect')">✕</button>
+    <h3 id="selectTitle">Tool</h3>
+    <p class="modal-sub" id="selectOwner"></p>
+    <div id="selectBody"></div>
+    <div class="field">
+      <label>When do you need it?</label>
+      <input type="text" id="selectDates" placeholder="e.g. Oct 3 – Oct 5">
+    </div>
+    <div class="field">
+      <label>Note to owner (optional)</label>
+      <textarea id="selectNote" placeholder="What's the project?"></textarea>
+    </div>
+    <button class="btn block" id="selectConfirmBtn">Send request</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlayAddTool">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('overlayAddTool')">✕</button>
+    <h3>Add a tool</h3>
+    <p class="modal-sub">List something from your shed for neighbors to borrow.</p>
+    <div class="field"><label>Tool name</label><input id="newToolName" placeholder="e.g. Pressure Washer"></div>
+    <div class="field">
+      <label>Category</label>
+      <select id="newToolCat">
+        <option>Power Tools</option>
+        <option>Hand Tools</option>
+        <option>Outdoor & Garden</option>
+        <option>Ladders & Access</option>
+        <option>Cleaning</option>
+        <option>Automotive</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Icon</label>
+      <div class="avatar-pick" id="toolIconPick"></div>
+    </div>
+    <div class="field"><label>Notes for borrowers</label><textarea id="newToolNotes" placeholder="Condition, quirks, safety notes…"></textarea></div>
+    <button class="btn block" onclick="addTool()">Add to my crib</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlayReview">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('overlayReview')">✕</button>
+    <h3>Mark returned & review</h3>
+    <p class="modal-sub" id="reviewSub"></p>
+    <label style="font-size:12px;font-weight:600;color:#C9BF9F;">Rating</label>
+    <div class="stars" id="reviewStars">
+      <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
+    </div>
+    <div class="field">
+      <label>Comment</label>
+      <textarea id="reviewComment" placeholder="How did it go?"></textarea>
+    </div>
+    <button class="btn block" id="reviewSubmitBtn">Submit & mark returned</button>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
